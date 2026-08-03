@@ -16,8 +16,8 @@
  *
  * 调用路径：agenote 已迁至 CLI（agenote）模式，agent 主循环通过 bash 调用
  * agenote 命令。但 pi 的 ExtensionAPI 不提供 CLI 调用接口，本插件的命令
- * （/agenote-health、/agenote-curate）调轻量 CLI shim（agenote_cli.py），
- * 它复用同一套 ag_lib 内核，输出人类可读文本。
+ * （/agenote-health、/agenote-curate）调轻量 CLI shim（agenote-cli），
+ * 它复用同一套 agenote 内核，输出人类可读文本。
  */
 
 import { execSync } from "node:child_process";
@@ -25,7 +25,7 @@ import { appendFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-const KB_SCRIPT = join(homedir(), ".local", "bin", "agenote_cli.py");
+const KB_SCRIPT = "agenote-cli";
 
 // ─── 加载错误日志（omp 默认静默吞掉扩展错误，这里显式留痕）────────────────────
 const LOG_FILE = join(
@@ -101,21 +101,21 @@ let idleTimer: ReturnType<typeof setTimeout> | undefined;
 /** 本扩展注入的 review 提示的标识符——用于排除自注入消息，断开自触发反馈环 */
 const HOOK_MARKER = "<agenote-hook>";
 
-/** 运行 agenote_cli 命令并返回 stdout
+/** 运行 agenote-cli 命令并返回 stdout
  *
- * agenote_cli.py 是轻量 CLI shim（纯 stdlib），复用 ag_lib 内核。
- * agent 主循环已改用 MCP tool 调用 agenote，但本插件（ExtensionAPI 无
- * MCP 调用接口）只能 execSync 外部进程，故走此 shim。
+ * agenote-cli 是轻量 CLI shim entry point（由 agenote 包的 console_scripts 产出），
+ * 复用 agenote 内核，输出人类可读文本。本插件（ExtensionAPI 无 MCP 调用接口）
+ * 只能 execSync 外部进程，故走此 shim。
  */
 function runKb(...args: string[]): string {
   try {
-    return execSync(`python3 "${KB_SCRIPT}" ${args.join(" ")}`, {
+    return execSync(`${KB_SCRIPT} ${args.join(" ")}`, {
       encoding: "utf-8",
       timeout: 30000,
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
   } catch (err: any) {
-    return `(agenote_cli 命令失败: ${err.message?.split("\n")[0] || err})`;
+    return `(agenote-cli 命令失败: ${err.message?.split("\n")[0] || err})`;
   }
 }
 
@@ -335,7 +335,7 @@ function initBody(pi: ExtensionAPI): void {
 
   // ── /agenote-curate 命令 ──（原 /curate）
   // 原 runKbAgent 走 kb-agent（~/.local/bin/kb-agent），但该文件不存在；
-  // agenote_cli.py 复用同一套 ag_lib 内核，支持 curate 关键词，改走它。
+  // agenote-cli 复用同一套 agenote 内核，支持 curate 关键词，改走它。
   // curate 是重操作（健康 + 去重 + 归档 + 权重重分配），给 120s 超时。
   pi.registerCommand("agenote-curate", {
     description: "执行 agenote 策展（健康 + 去重 + 归档 + 权重重分配）",
@@ -344,13 +344,13 @@ function initBody(pi: ExtensionAPI): void {
 
       let result: string;
       try {
-        result = execSync(`python3 "${KB_SCRIPT}" curate`, {
+        result = execSync(`${KB_SCRIPT} curate`, {
           encoding: "utf-8",
           timeout: 120000,
           stdio: ["pipe", "pipe", "pipe"],
         }).trim();
       } catch (err: any) {
-        result = `(agenote_cli curate 失败: ${err.message?.split("\n")[0] || err})`;
+        result = `(agenote-cli curate 失败: ${err.message?.split("\n")[0] || err})`;
       }
 
       ctx.ui.notify("[agenote] 策展完成", "info");
