@@ -8,13 +8,13 @@ omp（oh-my-pi）侧的集成扩展，作为 `Guix-configs` 的 Git 子模块嵌
 
 ## 扩展功能
 
-| 钩子/命令 | 触发 | 作用 |
-| --------- | ---- | ---- |
-| `session_start` | 会话启动 | 注入 agenote 健康度摘要（卡片数、陈旧率、薄弱类别） |
-| `agent_end` | agent 响应结束 | 检测"任务完成信号"，命中时注入 agenote-review 评估提示（含留痕） |
-| `/agenote-summarize` | 斜杠命令 | 在当前会话触发经验总结 + 资料留痕 |
-| `/agenote-curate` | 斜杠命令 | 执行 agenote 策展（健康+去重+归档+权重重分配） |
-| `/agenote-health` | 斜杠命令 | 显示 agenote 健康度报告 |
+| 钩子/命令            | 触发           | 作用                                                             |
+| -------------------- | -------------- | ---------------------------------------------------------------- |
+| `session_start`      | 会话启动       | 注入 agenote 健康度摘要（卡片数、陈旧率、薄弱类别）              |
+| `agent_end`          | agent 响应结束 | 检测"任务完成信号"，命中时注入 agenote-review 评估提示（含留痕） |
+| `/agenote-summarize` | 斜杠命令       | 在当前会话触发经验总结 + 资料留痕                                |
+| `/agenote-curate`    | 斜杠命令       | 执行 agenote 策展（健康+去重+归档+权重重分配）                   |
+| `/agenote-health`    | 斜杠命令       | 显示 agenote 健康度报告                                          |
 
 信号清单、写入流程、卡片格式由 [agenote-skills](https://github.com/ShineBreaker/agenote-skills)
 的 `agenote-{base,curator,review}` skill 提供，本插件只做"事件触发 + 命令快捷入口"，
@@ -31,6 +31,7 @@ omp 扩展是**单文件 TypeScript**，无需构建步骤：
 - 所有 import 都是 Node.js 内置模块（`node:child_process` 等），无第三方 npm 依赖
 
 入口签名：
+
 ```typescript
 export default function init(pi: ExtensionAPI): void { ... }
 ```
@@ -49,6 +50,7 @@ blue stow --restow agenote  # 重建
 ```
 
 部署后：
+
 ```
 ~/.config/omp/extensions/agenote-hooks/index.ts → 本仓库源（逐文件软链）
 ```
