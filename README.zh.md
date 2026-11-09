@@ -1,3 +1,5 @@
+> **已归档 / 已迁移。** 本仓库已迁移至 monorepo https://github.com/ShineBreaker/agenote ，不再维护。请到该仓的 [`packages/agenote-pi/`](https://github.com/ShineBreaker/agenote/tree/main/packages/agenote-pi)。
+
 # pi-agenote：oh-my-pi (omp) 的 agenote 集成扩展
 
 pi-agenote 把 agenote 知识库接进 oh-my-pi (omp)。它是单文件 TypeScript

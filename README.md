@@ -1,3 +1,5 @@
+> **Archived / moved.** This repository has been migrated into the monorepo https://github.com/ShineBreaker/agenote and is no longer maintained. See [`packages/agenote-pi/`](https://github.com/ShineBreaker/agenote/tree/main/packages/agenote-pi) there.
+
 # pi-agenote: agenote integration for oh-my-pi (omp)
 
 pi-agenote wires the agenote knowledge base into oh-my-pi (omp). It is a
